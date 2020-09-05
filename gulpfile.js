@@ -1,28 +1,28 @@
-let progect_folder = "dist";
-let sourse_folder = "#src";
+let project_folder = "dist";
+let source_folder = "#src";
 
 let path = {
   build: {
-    html: progect_folder + "/",
-    css: progect_folder + "/css/",
-    js: progect_folder + "/js/",
-    image: progect_folder + "/image/",
-    fonts: progect_folder + "/fonts/",
+    html: project_folder + "/",
+    css: project_folder + "/css/",
+    js: project_folder + "/js/",
+    image: project_folder + "/image/",
+    fonts: project_folder + "/fonts/",
   },
   src: {
-    html: [sourse_folder + "/*.html", "!" + sourse_folder + "/_*.html"],
-    css: progect_folder + "/scss/style.scss/",
-    js: sourse_folder + "/js/script.js",
-    image: sourse_folder + "/image/**/*.{jpg, png, svg, gif, ico,webp}",
-    fonts: sourse_folder + "/fonts/*.ttf",
+    html: [source_folder + "/*.html", "!" + source_folder + "/_*.html"],
+    css: source_folder + "/scss/style.scss/",
+    js: source_folder + "/js/script.js",
+    image: source_folder + "/image/**/*.{jpg, png, svg, gif, ico,webp}",
+    fonts: source_folder + "/fonts/*.ttf",
   },
   watch: {
-    html: sourse_folder + "/**/*.html",
-    css: progect_folder + "/scss/**/*.scss/",
-    js: sourse_folder + "/js/**/*.js",
-    image: sourse_folder + "/image/**/*.{jpg, png, svg, gif, ico,webp}",
+    html: source_folder + "/**/*.html",
+    css: source_folder + "/scss/**/*.scss/",
+    js: source_folder + "/js/**/*.js",
+    image: source_folder + "/image/**/*.{jpg, png, svg, gif, ico,webp}",
   },
-  clean: "./" + progect_folder + "/",
+  clean: "./" + project_folder + "/",
 };
 
 let { src, dest } = require("gulp"),
@@ -35,7 +35,7 @@ let { src, dest } = require("gulp"),
 function browserSync(params) {
   browsersync.init({
     server: {
-      baseDir: "./" + progect_folder + "/",
+      baseDir: "./" + project_folder + "/",
     },
     port: 3000,
     notify: false, //отключаем табличку браузер обновился
@@ -53,16 +53,15 @@ function css() {
   return src(path.src.css)
     .pipe(
       scss({
-        outputStyle: `expanded`,
+        outputStyle: "expanded",
       })
     )
-    .pipe(dest(path.build.css))
+    .pipe(dest(path.build.css)) //путь куда выгрузиться css
     .pipe(browsersync.stream());
 }
 
 function watchFiles(params) {
   gulp.watch([path.watch.html], html);
-  gulp.watch([path.watch.css], css);
 }
 
 function clean(params) {
@@ -72,8 +71,8 @@ function clean(params) {
 let build = gulp.series(clean, gulp.parallel(css, html));
 let watch = gulp.parallel(build, watchFiles, browserSync);
 
-exports.html = html;
 exports.css = css;
+exports.html = html;
 exports.build = build;
 exports.watch = watch;
 exports.default = watch;
