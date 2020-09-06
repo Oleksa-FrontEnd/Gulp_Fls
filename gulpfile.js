@@ -11,14 +11,14 @@ let path = {
   },
   src: {
     html: [source_folder + "/*.html", "!" + source_folder + "/_*.html"],
-    css: source_folder + "/scss/style.scss/",
+    css: source_folder + "/scss/style.scss",
     js: source_folder + "/js/script.js",
     image: source_folder + "/image/**/*.{jpg, png, svg, gif, ico,webp}",
     fonts: source_folder + "/fonts/*.ttf",
   },
   watch: {
     html: source_folder + "/**/*.html",
-    css: source_folder + "/scss/**/*.scss/",
+    css: source_folder + "/scss/**/*.scss",
     js: source_folder + "/js/**/*.js",
     image: source_folder + "/image/**/*.{jpg, png, svg, gif, ico,webp}",
   },
@@ -30,7 +30,11 @@ let { src, dest } = require("gulp"),
   browsersync = require("browser-sync").create(),
   fileinclude = require("gulp-file-include"),
   del = require("del"),
-  scss = require("gulp-sass");
+  scss = require("gulp-sass"),
+  autoprefixer = require("gulp-autoprefixer"),
+  group_media = require("gulp-group-css-media-queries"), // собирает media запросы по всему css-файлу и ставит их в конец(низ)
+  clean_css = require("gulp-clean-css"), //чистит и сжимает css-файл на выходе
+  rename = require("gulp-rename"); //создаем не сжатый css
 
 function browserSync(params) {
   browsersync.init({
@@ -56,12 +60,27 @@ function css() {
         outputStyle: "expanded",
       })
     )
-    .pipe(dest(path.build.css)) //путь куда выгрузиться css
+    .pipe(group_media())
+    .pipe(
+      autoprefixer({
+        overrideBrowserslist: ["last 5 versions"],
+        cascade: true,
+      })
+    )
+    .pipe(dest(path.build.css)) //путь куда выгрузиться первый css
+    .pipe(clean_css())
+    .pipe(
+      rename({
+        extname: ".min.css",
+      })
+    )
+    .pipe(dest(path.build.css)) //путь куда выгрузиться второй css, сжатый min.css
     .pipe(browsersync.stream());
 }
 
 function watchFiles(params) {
   gulp.watch([path.watch.html], html);
+  gulp.watch([path.watch.css], css);
 }
 
 function clean(params) {
